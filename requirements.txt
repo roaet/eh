@@ -1,0 +1,2 @@
+click>=6.6
+stevedore==1.15.0
