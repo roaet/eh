@@ -18,10 +18,10 @@ import inspect
 import itertools
 from stevedore import extension
 
-from remindme import base_subject as base
+from eh import base_subject as base
 
 
-SUBJECT_EP = 'remindme.subject_extensions'
+SUBJECT_EP = 'eh.subject_extensions'
 
 
 command_settings = {
@@ -29,7 +29,7 @@ command_settings = {
 }
 
 
-class RemindMe(object):
+class Eh(object):
 
     def __init__(self, debug):
         self.subjects = {}
@@ -90,7 +90,7 @@ class RemindMe(object):
 @click.pass_context
 def main(context, subject, debug):
     if subject == 'list':
-        RemindMe(debug=debug).subject_list()
+        Eh(debug=debug).subject_list()
         exit(0)
-    RemindMe(debug=debug).run(subject)
+    Eh(debug=debug).run(subject)
     exit(0)

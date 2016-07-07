@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from remindme import base_subject as base
+from eh import base_subject as base
 
 class BashKeyboardShortcutsSubject(base.BaseSubject):
     keys = ['bash']

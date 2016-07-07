@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from remindme import base_subject as base
+from eh import base_subject as base
 
 class SampleSubject(base.BaseSubject):
     keys = ['sample']
@@ -21,7 +21,7 @@ class SampleSubject(base.BaseSubject):
 
     def output(self):
         output = """
-This is an example of a subject for remindme for other 
+This is an example of a subject for eh for other 
 authors.
 """
         output += self.colored_bullet("colors supported")
