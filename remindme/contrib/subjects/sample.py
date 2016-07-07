@@ -15,7 +15,7 @@
 
 from remindme import base_subject as base
 
-class RemindmeSubject(base.BaseSubject):
+class SampleSubject(base.BaseSubject):
     keys = ['sample']
     versions = ['1.0']
 
@@ -24,8 +24,8 @@ class RemindmeSubject(base.BaseSubject):
 This is an example of a subject for remindme for other 
 authors.
 """
-        output += self._colored_bullet("colors supported")
-        output += self._colored_bullet("overload the 'output' method")
-        output += self._colored_bullet("create your own formatting with click")
-        output += self._colored_bullet("or contribute to remindme core")
+        output += self.colored_bullet("colors supported")
+        output += self.colored_bullet("overload the 'output' method")
+        output += self.colored_bullet("create your own formatting with click")
+        output += self.colored_bullet("or contribute to remindme core")
         return output

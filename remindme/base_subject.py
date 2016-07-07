@@ -17,9 +17,15 @@ import click
 
 class BaseSubject(object):
 
-    def _colored_bullet(self, words, color='green'):
+    def colored_bullet(self, words, color='green'):
         bullet = click.style(' - ', fg=color, bold=True)
         return "%s%s\n" % (bullet, words)
+
+    def bullet2col(self, first, second, color='green'):
+        bullet = click.style(' - ', fg=color, bold=True)
+        firstcol = click.style(first, bold=True)
+        secondcol = second
+        return "%s%s\t%s\n" % (bullet, firstcol, secondcol)
 
     def output(self):
         return ""

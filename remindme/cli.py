@@ -31,8 +31,9 @@ command_settings = {
 
 class RemindMe(object):
 
-    def __init__(self):
+    def __init__(self, debug):
         self.subjects = {}
+        self.debug = debug
         self._register_extensions('1.0')
 
     def _load_subject_with_module(self, module, version):
@@ -50,7 +51,17 @@ class RemindMe(object):
                         self.subjects[key] = subject
 
     def _discover_via_entrypoints(self):
-        emgr = extension.ExtensionManager(SUBJECT_EP, invoke_on_load=False)
+
+        def fail2load(manager, entrypoint, exception):
+            if self.debug:
+                click.echo("Failed to load a subject: %s" % entrypoint)
+                click.echo("Error is:\n%s" % exception)
+            else:
+                click.echo("A subject failed to load, please run with --debug")
+
+        emgr = extension.ExtensionManager(
+            SUBJECT_EP, invoke_on_load=False,
+            on_load_failure_callback=fail2load)
         return ((ext.name, ext.plugin) for ext in emgr)
 
     def _register_extensions(self, version):
@@ -66,10 +77,20 @@ class RemindMe(object):
         click.echo("Reminding you about %s." % substr)
         click.echo(subobj.output())
 
+    def subject_list(self):
+        click.echo("I know about: ")
+        for subject in self.subjects:
+            click.echo(subject)
+        click.echo("list (this list)")
+
 
 @click.command(context_settings=command_settings)
 @click.argument('subject')
+@click.option('--debug', is_flag=True)
 @click.pass_context
-def main(context, subject):
-    RemindMe().run(subject)
+def main(context, subject, debug):
+    if subject == 'list':
+        RemindMe(debug=debug).subject_list()
+        exit(0)
+    RemindMe(debug=debug).run(subject)
     exit(0)
