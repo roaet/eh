@@ -1,9 +1,10 @@
 CHANGES
 =======
 
-0.1.3
+0.1.4
 -----
 
+* Removed readme.rst and added readme.md
 * Created help and updated readme
 * Fixed bash subject markdown due to mdv bug
 
