@@ -12,20 +12,38 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import click
-
+from eh import mdv
+import os 
 
 class BaseSubject(object):
 
-    def colored_bullet(self, words, color='green'):
-        bullet = click.style(' - ', fg=color, bold=True)
-        return "%s%s\n" % (bullet, words)
+    def __init__(self):
+        self._subjects = {}
 
-    def bullet2col(self, first, second, color='green'):
-        bullet = click.style(' - ', fg=color, bold=True)
-        firstcol = click.style(first, bold=True)
-        secondcol = second
-        return "%s%s\t%s\n" % (bullet, firstcol, secondcol)
+    @property
+    def subjects(self):
+        return self._subjects.keys()
 
-    def output(self):
-        return ""
+    def populate_subjects(self, target_path):
+        file_paths = []
+        for file in os.listdir(target_path):
+            if file.endswith(".md"):
+                file_paths.append("%s/%s" % (target_path, file))
+        for file in file_paths:
+            with open(file, 'r') as myfile:
+                data = myfile.read().splitlines()
+                top_line = data.pop(0)
+                subjects = [x.strip() for x in top_line.split(',')]
+                full_text = "\n".join(data)
+                for subject in subjects:
+                    self._subjects[subject] = full_text
+
+    def output(self, subject, no_colors=False):
+        if subject not in self.subjects:
+            return None
+        pre_md = self._subjects[subject]
+        pre_md = "Reminding you about **%s**\n%s" % (subject, pre_md)
+        md = mdv.main(pre_md, no_colors=no_colors)
+        lines = md.splitlines()
+        lines = [line for line in lines if line.strip()]
+        return "\n".join(lines)

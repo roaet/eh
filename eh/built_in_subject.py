@@ -12,20 +12,16 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os 
 
 from eh import base_subject as base
 
-class SampleSubject(base.BaseSubject):
-    keys = ['sample']
+class BuiltInSubjects(base.BaseSubject):
     versions = ['1.0']
 
-    def output(self):
-        output = """
-This is an example of a subject for eh for other 
-authors.
-"""
-        output += self.colored_bullet("colors supported")
-        output += self.colored_bullet("overload the 'output' method")
-        output += self.colored_bullet("create your own formatting with click")
-        output += self.colored_bullet("or contribute to remindme core")
-        return output
+    def __init__(self):
+        super(BuiltInSubjects, self).__init__()
+        paths = 'contrib/subjects'
+        cur_path = os.path.dirname(__file__)
+        target_path = "%s/%s" % (cur_path, paths)
+        self.populate_subjects(target_path)

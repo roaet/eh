@@ -23,7 +23,6 @@ from eh import base_subject as base
 
 SUBJECT_EP = 'eh.subject_extensions'
 
-
 command_settings = {
     'ignore_unknown_options': True,
 }
@@ -31,9 +30,10 @@ command_settings = {
 
 class Eh(object):
 
-    def __init__(self, debug):
+    def __init__(self, debug, no_colors):
         self.subjects = {}
         self.debug = debug
+        self.no_colors = no_colors
         self._register_extensions('1.0')
 
     def _load_subject_with_module(self, module, version):
@@ -45,10 +45,9 @@ class Eh(object):
             else:
                 continue
             if issubclass(cls, base.BaseSubject):
-                if hasattr(cls, "keys"):
-                    subject = cls()
-                    for key in cls.keys:
-                        self.subjects[key] = subject
+                subject_ext = cls()
+                for subject in subject_ext.subjects:
+                    self.subjects[subject] = subject_ext
 
     def _discover_via_entrypoints(self):
 
@@ -73,9 +72,7 @@ class Eh(object):
             click.echo("I do not know anything about %s." % subject)
             exit(1)
         subobj = self.subjects[subject]
-        substr = click.style(subject, bold=True)
-        click.echo("Reminding you about %s." % substr)
-        click.echo(subobj.output())
+        click.echo(subobj.output(subject, self.no_colors))
 
     def subject_list(self):
         click.echo("I know about: ")
@@ -87,10 +84,11 @@ class Eh(object):
 @click.command(context_settings=command_settings)
 @click.argument('subject')
 @click.option('--debug', is_flag=True)
+@click.option('--no-colors', is_flag=True)
 @click.pass_context
-def main(context, subject, debug):
+def main(context, subject, debug, no_colors):
     if subject == 'list':
-        Eh(debug=debug).subject_list()
+        Eh(debug, no_colors).subject_list()
         exit(0)
-    Eh(debug=debug).run(subject)
+    Eh(debug, no_colors).run(subject)
     exit(0)
