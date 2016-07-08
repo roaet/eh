@@ -1,6 +1,16 @@
 CHANGES
 =======
 
+0.1.2
+-----
+
+* Fixed bash subject markdown due to mdv bug
+
+0.1.1
+-----
+
+* Changed the way that subjects are loaded and made
+
 0.1.0
 -----
 

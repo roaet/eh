@@ -1,3 +1,4 @@
+# coding: utf-8
 # Copyright (c) 2016 Justin L. Hammond
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +13,15 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
+
 from eh import mdv
 import os 
 
 class BaseSubject(object):
 
     def __init__(self):
+        reload(sys); sys.setdefaultencoding('utf-8')
         self._subjects = {}
 
     @property
