@@ -1,3 +1,4 @@
+eh, help
 #Eh
 Eh is a tool to give quick help on a particular subject
 
