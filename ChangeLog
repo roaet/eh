@@ -1,9 +1,10 @@
 CHANGES
 =======
 
-0.1.6
+0.1.7
 -----
 
+* Fixed the docker and vim subjects
 * Added new vim and docker subjects
 
 0.1.5
