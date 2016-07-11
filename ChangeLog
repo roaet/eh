@@ -1,7 +1,12 @@
 CHANGES
 =======
 
-0.1.4
+0.1.6
+-----
+
+* Added new vim and docker subjects
+
+0.1.5
 -----
 
 * Removed readme.rst and added readme.md
