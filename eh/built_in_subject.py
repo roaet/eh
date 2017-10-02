@@ -19,9 +19,11 @@ from eh import base_subject as base
 class BuiltInSubjects(base.BaseSubject):
     versions = ['1.0']
 
-    def __init__(self):
+    def __init__(self, path=None):
         super(BuiltInSubjects, self).__init__()
         paths = 'contrib/subjects'
         cur_path = os.path.dirname(__file__)
         target_path = "%s/%s" % (cur_path, paths)
+        if path is not None:
+            target_path = path
         self.populate_subjects(target_path)
