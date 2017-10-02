@@ -11,11 +11,9 @@ https://github.com/roaet/eh
 
 You can make a new eh topic by:
 
-- contributing to the core repo in contrib/subjects
-- creating your own eh extension using the `eh.subject_extensions` entry point and subclassing the BaseSubject class
+- contributing to the subject repo at `https://github.com/roaet/eh_subjects`
 
 ##Future features
 
 - Bash-completion for subjects at command line
 - Config from home for color options
-- Using `mdv` properly (when it is on pypi)
