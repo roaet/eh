@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+0.1.8
+-----
+
 * Added find
 * Added grep reminder
 * Fixed the docker and vim subjects
