@@ -173,6 +173,13 @@ def main(context, subject, debug, no_colors):
     To get started run: eh help
 
     To figure out what eh knows about run: eh list
+
+    To update the list of subjects: eh update
+
+    Note:
+
+    Eh will make a directory in your userhome called .eh
+    where it will store downloaded subjects.
     """
     eho = Eh(debug, no_colors)
     if subject == 'list':

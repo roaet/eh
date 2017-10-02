@@ -1,9 +1,10 @@
 CHANGES
 =======
 
-0.2.3
+0.2.4
 -----
 
+* Updated cli help for update
 * Updated cli help
 * Updated readme
 * Updated eh help
