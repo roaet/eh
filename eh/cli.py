@@ -166,6 +166,14 @@ class Eh(object):
 @click.option('--no-colors', is_flag=True)
 @click.pass_context
 def main(context, subject, debug, no_colors):
+    """
+    Eh is a terminal program that will provide you with
+    quick reminders about a subject.
+
+    To get started run: eh help
+
+    To figure out what eh knows about run: eh list
+    """
     eho = Eh(debug, no_colors)
     if subject == 'list':
         eho.subject_list()
