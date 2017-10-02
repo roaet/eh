@@ -1,9 +1,15 @@
 CHANGES
 =======
 
-0.2.4
+0.2.6
 -----
 
+* Allowed MD comment format for subject header
+
+0.2.5
+-----
+
+* Updated list method and readme
 * Updated cli help for update
 * Updated cli help
 * Updated readme

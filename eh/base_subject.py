@@ -28,6 +28,26 @@ class BaseSubject(object):
     def subjects(self):
         return self._subjects.keys()
 
+    def comment_is_valid_format(self, comment):
+        if '[//]' not in comment or '#' not in comment:
+            return False
+        pound_split = [x.strip() for x in comment.split('#')]
+        if len(pound_split) != 2:
+            return False
+        paren_side = pound_split[1]
+        if paren_side.count('(') != 1 or paren_side.count(')') != 1:
+            return False
+        if paren_side[:1] != '(' or paren_side[-1] != ')':
+            return False
+        return True
+
+    def _pull_subjects_from_md_comment(self, comment):
+        if not self.comment_is_valid_format(comment):
+            return []
+        paren_side = [x.strip() for x in comment.split('#')][1]
+        comment_internal = paren_side[1:len(paren_side)-1]
+        return [x.strip() for x in comment_internal.split(',')]
+
     def populate_subjects(self, target_path):
         file_paths = []
         for file in os.listdir(target_path):
@@ -37,7 +57,12 @@ class BaseSubject(object):
             with open(file, 'r') as myfile:
                 data = myfile.read().splitlines()
                 top_line = data.pop(0)
-                subjects = [x.strip() for x in top_line.split(',')]
+                if '[//]' in top_line:  # using comment format
+                    subjects = self._pull_subjects_from_md_comment(top_line)
+                else:
+                    subjects = [x.strip() for x in top_line.split(',')]
+                if not subjects:
+                    continue
                 full_text = "\n".join(data)
                 for subject in subjects:
                     self._subjects[subject] = full_text

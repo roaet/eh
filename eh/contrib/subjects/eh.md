@@ -1,5 +1,6 @@
-eh, help
-#Eh
+[//]: # (eh, help)
+#Eh Poop
+
 Eh is a tool to give quick help on a particular subject
 
 The source code can be found at:
@@ -18,3 +19,4 @@ You can make a new eh topic by:
 
 - Bash-completion for subjects at command line
 - Config from home for color options
+
