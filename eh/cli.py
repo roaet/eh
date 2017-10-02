@@ -100,10 +100,9 @@ class Eh(object):
     def subject_list(self):
         click.echo("I know about: ")
         for subject in self.subjects:
-            click.echo(subject)
+            click.echo('- %s' % subject)
         for subject in self.repo_subs.subjects:
-            click.echo(subject)
-        click.echo("list (this list)")
+            click.echo('- %s' % subject)
 
     def _find_any_subjects(self):
         return [
