@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
-
-from eh import mdv
 import os 
+
+import mdv
 
 class BaseSubject(object):
 
     def __init__(self):
-        reload(sys); sys.setdefaultencoding('utf-8')
+        #reload(sys); sys.setdefaultencoding('utf-8')
         self._subjects = {}
 
     @property

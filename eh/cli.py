@@ -99,7 +99,7 @@ class Eh(object):
 
     def subject_list(self):
         click.echo("I know about: ")
-        full_list = self.subjects.keys()
+        full_list = list(self.subjects.keys())
         full_list.extend(self.repo_subs.subjects)
         full_list.sort()
         for subject in full_list:
