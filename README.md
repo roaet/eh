@@ -23,8 +23,13 @@ You can make a new eh topic by:
 
 - contributing to the subject repo at `https://github.com/roaet/eh_subjects`
 
+##Auto Complete
+
+(shoutout to https://github.com/CarvellScott/completion_utils for the help)
+
+After installing you can add eh bash completion by running: `complete -C eh_autocomplete eh`
+
 ##Future features
 
-- Bash-completion for subjects at command line
 - Config from home for color options
 - Personal subject repositories

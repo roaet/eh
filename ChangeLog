@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+1.1.0
+-----
+
+* Python 3 support
+
 1.0.3
 -----
 
@@ -27,7 +32,15 @@ CHANGES
 -----
 
 * Fixed pyyaml security issue
+
+v0.2.8
+------
+
 * Updated changelog and tags
+
+v0.2.7
+------
+
 * updated version
 * Removed eh poop
 * Allowed MD comment format for subject header
