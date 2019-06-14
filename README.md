@@ -8,6 +8,15 @@ The source code can be found at:
 https://github.com/roaet/eh
 ```
 
+##Installing
+
+Install with `pip install eh`. You may want to use `sudo` if you want it
+available everywhere.
+
+With some versions of linux it will install it into `~/.local/bin` when you
+do not use `sudo`. Ensure that this directory is in your `PATH` if you want to
+run eh.
+
 ##Making an eh topic
 
 You can make a new eh topic by:
@@ -18,3 +27,4 @@ You can make a new eh topic by:
 
 - Bash-completion for subjects at command line
 - Config from home for color options
+- Personal subject repositories
