@@ -1,5 +1,5 @@
 [//]: # (eh, help)
-#Eh Poop
+#Eh
 
 Eh is a tool to give quick help on a particular subject
 
