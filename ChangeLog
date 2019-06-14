@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+0.2.8
+-----
+
+* Fixed pyyaml security issue
+* Updated changelog and tags
 * updated version
 * Removed eh poop
 * Allowed MD comment format for subject header
