@@ -218,6 +218,12 @@ def main(context, subject, debug, no_colors):
     where it will store downloaded subjects.
     """
     eho = Eh(debug, no_colors)
+    if len(subject) == 0:
+        click.echo("Missing a subject to think about")
+        exit(1)
+    if len(subject) > 2:
+        click.echo("Eh supports up to 2 levels of nesting")
+        exit(1)
     if subject[0] == 'list':
         eho.subject_list()
         exit(0)
