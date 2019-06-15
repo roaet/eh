@@ -35,6 +35,7 @@ class Eh(object):
 
     def __init__(self, debug, no_colors):
         self.subjects = {}
+        self.subject_collections = []
         self.repo_subs = {}
         self.debug = debug
         self.no_colors = no_colors
@@ -61,6 +62,7 @@ class Eh(object):
                 continue
             if issubclass(cls, base.BaseSubject):
                 subject_ext = cls()
+                self.subject_collections.append(subject_ext)
                 for subject in subject_ext.subjects:
                     self.subjects[subject] = subject_ext
 
@@ -81,17 +83,49 @@ class Eh(object):
         for name, module in itertools.chain(self._discover_via_entrypoints()):
             self._load_subject_with_module(module, version)
 
-    def run(self, subject, **kwargs):
-        if (
-                subject not in self.subjects and
-                subject not in self.repo_subs.subjects):
+    def _merge_subject_collections(self):
+        final_subjects = {}
+        final_parents = {}
+        for collection in self.subject_collections:
+            for subject in collection.subjects:
+                final_subjects[subject] = collection.get_subject_unformatted(
+                    subject)
+            for parent in collection.parents:
+                final_parents[parent] = {}
+                for child in collection.get_children_for_parent(parent):
+                    final_parents[parent][child] = (
+                        collection.get_childsubject_unformatted(
+                            parent, child))
+        self.subjects = final_subjects
+        self.parents = final_parents
+
+    def find_and_output_subject(self, subject):
+        if subject not in self.subjects:
             click.echo("I do not know anything about %s." % subject)
             exit(1)
-        if subject in self.repo_subs.subjects:
-            subobj = self.repo_subs
-        else:
-            subobj = self.subjects[subject]
-        click.echo(subobj.output(subject, self.no_colors))
+        click.echo(base.BaseSubject.md_output(
+            subject, self.subjects[subject], no_colors=self.no_colors))
+
+    def run(self, subjects, **kwargs):
+        self._merge_subject_collections()
+        if len(subjects) == 1:
+            self.find_and_output_subject(subjects[0])
+        elif len(subjects) == 2:
+            parent = subjects[0]
+            subject = subjects[1]
+            if parent not in self.parents:
+                click.echo(
+                    "I do not know anything about a parent subject called %s."
+                    % parent)
+                exit(1)
+            if subject not in self.parents[parent]:
+                click.echo(
+                    "I do not know anything about %s with regards to %s" %
+                    (subject, parent))
+                exit(1)
+            text = self.parents[parent][subject]
+            click.echo(base.BaseSubject.md_output(
+                subject, text, no_colors=self.no_colors))
 
     def _make_subject_list_from_repo(self):
         subs = bis.BuiltInSubjects(self.eh_subject_location)
@@ -147,7 +181,9 @@ class Eh(object):
         if not self.check_subjects_exists():
             click.echo('Need to initialize subjects')
             self._init_repo()
-        self.repo_subs = self._make_subject_list_from_repo()
+        repo_subs = self._make_subject_list_from_repo()
+        self.subject_collections.append(repo_subs)
+        self.repo_subs = repo_subs
 
     def update_subject_repo(self):
         if not self.check_subjects_exists():
@@ -161,7 +197,7 @@ class Eh(object):
             self.subject_list()
 
 @click.command(context_settings=command_settings)
-@click.argument('subject')
+@click.argument('subject', nargs=-1)
 @click.option('--debug', is_flag=True)
 @click.option('--no-colors', is_flag=True)
 @click.pass_context
@@ -182,10 +218,10 @@ def main(context, subject, debug, no_colors):
     where it will store downloaded subjects.
     """
     eho = Eh(debug, no_colors)
-    if subject == 'list':
+    if subject[0] == 'list':
         eho.subject_list()
         exit(0)
-    if subject == 'update':
+    if subject[0] == 'update':
         eho.update_subject_repo()
         exit(0)
     eho.run(subject)

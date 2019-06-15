@@ -23,7 +23,7 @@ class BuiltInSubjects(base.BaseSubject):
         super(BuiltInSubjects, self).__init__()
         paths = 'contrib/subjects'
         cur_path = os.path.dirname(__file__)
-        target_path = "%s/%s" % (cur_path, paths)
+        target_path = os.path.join(cur_path, paths)
         if path is not None:
             target_path = path
         self.populate_subjects(target_path)
