@@ -23,6 +23,7 @@ class BaseSubject(object):
     def __init__(self):
         #reload(sys); sys.setdefaultencoding('utf-8')
         self._subjects = {}
+        self._subject_summaries = {}
         self._parents = {}
 
     @property
@@ -32,6 +33,10 @@ class BaseSubject(object):
     @property
     def parents(self):
         return self._parents.keys()
+
+    @property
+    def summaries(self):
+        return self._subject_summaries.keys()
 
     def get_children_for_parent(self, parent):
         return self._parents[parent].keys()
@@ -48,6 +53,7 @@ class BaseSubject(object):
         paren_side = pound_split[1]
         if paren_side.count('(') != 1 or paren_side.count(')') != 1:
             return False
+        paren_side = paren_side.split(')')[0] + ')'
         if paren_side[:1] != '(' or paren_side[-1] != ')':
             return False
         return True
@@ -56,24 +62,35 @@ class BaseSubject(object):
         if not self.comment_is_valid_format(comment):
             return []
         paren_side = [x.strip() for x in comment.split('#')][1]
+        paren_side = paren_side.split(')')[0] + ')'
         comment_internal = paren_side[1:len(paren_side)-1]
         return [x.strip() for x in comment_internal.split(',')]
 
+    def _pull_summary_from_md_comment(self, comment):
+        if not self.comment_is_valid_format(comment):
+            return []
+        sum_side = [x.strip() for x in comment.split(')')][1]
+        return sum_side
+
     def _create_subject_dict_with_file(self, file):
         out = {}
+        sum_out = {}
         with open(file, 'r') as myfile:
             data = myfile.read().splitlines()
             top_line = data.pop(0)
+            summary = ""
             if '[//]' in top_line:  # using comment format
                 subjects = self._pull_subjects_from_md_comment(top_line)
+                summary = self._pull_summary_from_md_comment(top_line)
             else:
                 subjects = [x.strip() for x in top_line.split(',')]
             if not subjects:
-                return None
+                return None, None
             full_text = "\n".join(data)
             for subject in subjects:
                 out[subject] = full_text
-        return out
+                sum_out[subject] = summary
+        return out, sum_out
 
     def _get_subjects_in_parent(self, path, full_parent_path):
         subs = self._gather_subjects(full_parent_path, in_parent=True)
@@ -91,14 +108,16 @@ class BaseSubject(object):
     def _gather_subjects(self, target_path, in_parent=False):
         file_paths = []
         out = {}
+        sum_out = {}
         for file in os.listdir(target_path):
             if file.endswith(".md"):
                 file_paths.append(os.path.join(target_path, file))
         for file in file_paths:
-            s = self._create_subject_dict_with_file(file)
+            s, sums = self._create_subject_dict_with_file(file)
             if not s:
                 continue
             out.update(s)
+            sum_out.update(sums)
         if in_parent:
             return out
         for path in os.listdir(target_path):
@@ -107,10 +126,11 @@ class BaseSubject(object):
                 self._parents[path] = {}
                 parent_path = os.path.join(target_path, path)
                 out[path] = self._get_parent_fulltext(path, parent_path)
-        return out
+        return out, sum_out
 
     def populate_subjects(self, target_path):
-        self._subjects = self._gather_subjects(target_path)
+        self._subjects, self._subject_summaries = self._gather_subjects(
+            target_path)
 
     def get_childsubject_unformatted(self, parent, subject):
         pre_md = self._parents[parent][subject]
@@ -119,6 +139,9 @@ class BaseSubject(object):
     def get_subject_unformatted(self, subject):
         pre_md = self._subjects[subject]
         return pre_md
+
+    def get_summary(self, subject):
+        return self._subject_summaries[subject]
 
     @staticmethod
     def md_output(subject, text, no_colors=False):

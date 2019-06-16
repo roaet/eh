@@ -1,4 +1,4 @@
-[//]: # (eh, help)
+[//]: # (eh) Quick overview of eh
 # Eh
 
 Eh is a tool to give quick help on a particular subject

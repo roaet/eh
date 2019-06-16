@@ -19,6 +19,8 @@ import git
 import inspect
 import itertools
 from stevedore import extension
+from prettytable import PrettyTable
+from prettytable import PLAIN_COLUMNS, NONE
 
 from eh import base_subject as base
 from eh import built_in_subject as bis
@@ -86,6 +88,7 @@ class Eh(object):
     def _merge_subject_collections(self):
         final_subjects = {}
         final_parents = {}
+        final_summaries = {}
         for collection in self.subject_collections:
             for subject in collection.subjects:
                 final_subjects[subject] = collection.get_subject_unformatted(
@@ -96,8 +99,13 @@ class Eh(object):
                     final_parents[parent][child] = (
                         collection.get_childsubject_unformatted(
                             parent, child))
+            for summary in collection.summaries:
+                s = collection.get_summary(summary)
+                if s:
+                    final_summaries[summary] = s
         self.subjects = final_subjects
         self.parents = final_parents
+        self.summaries = final_summaries
 
     def find_and_output_subject(self, subject):
         if subject not in self.subjects:
@@ -132,12 +140,24 @@ class Eh(object):
         return subs
 
     def subject_list(self):
+        self._merge_subject_collections()
         click.echo("I know about: ")
         full_list = list(self.subjects.keys())
-        full_list.extend(self.repo_subs.subjects)
         full_list.sort()
+        t = PrettyTable(
+            [' ', 'subject', 'sub', 'summary'],
+            padding_width=0, header=False,
+            style=PLAIN_COLUMNS,
+            vertical_char=' ', horizontal_char=' ', junction_char=' ',
+            hrules=NONE)
+        t.align['subject'] = 'l'
         for subject in full_list:
-            click.echo('- %s' % subject)
+            p_icon = '>' if subject in self.parents else ''
+            subs = (
+                len(self.parents[subject]) if subject in self.parents else '')
+            summary = self.summaries.get(subject, '')
+            t.add_row([p_icon, subject, subs, summary])
+        click.echo(t)
 
     def _find_any_subjects(self):
         return [
@@ -222,7 +242,7 @@ def main(context, subject, debug, no_colors):
         click.echo("Missing a subject to think about")
         exit(1)
     if len(subject) > 2:
-        click.echo("Eh supports up to 2 levels of nesting")
+        click.echo("I only go two levels deep")
         exit(1)
     if subject[0] == 'list':
         eho.subject_list()
