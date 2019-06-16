@@ -93,19 +93,19 @@ class BaseSubject(object):
         return out, sum_out
 
     def _get_subjects_in_parent(self, path, full_parent_path):
-        subs = self._gather_subjects(full_parent_path, in_parent=True)
+        subs, sums = self._gather_subjects(full_parent_path, parent=path)
         for child, text in subs.items():
             self._parents[path][child] = text
-        return subs
+        return subs, sums
 
     def _get_parent_fulltext(self, path, full_parent_path):
-        children = self._get_subjects_in_parent(path, full_parent_path)
+        children, sums = self._get_subjects_in_parent(path, full_parent_path)
         out = ["%s has more detailed subjects:" % path]
         for subject, text in children.items():
             out.append("- %s" % subject)
-        return "\n".join(out)
+        return "\n".join(out), sums
 
-    def _gather_subjects(self, target_path, in_parent=False):
+    def _gather_subjects(self, target_path, parent=False):
         file_paths = []
         out = {}
         sum_out = {}
@@ -117,15 +117,21 @@ class BaseSubject(object):
             if not s:
                 continue
             out.update(s)
+            if parent:
+                psum = {}
+                for subsum, summary in sums.items():
+                    psum['%s/%s' % (parent, subsum)] = summary
+                sums = psum
             sum_out.update(sums)
-        if in_parent:
-            return out
+        if parent:
+            return out, sum_out
         for path in os.listdir(target_path):
             if os.path.isdir(os.path.join(target_path, path)):
                 # path is a directory, and also the parent subject key
                 self._parents[path] = {}
                 parent_path = os.path.join(target_path, path)
-                out[path] = self._get_parent_fulltext(path, parent_path)
+                out[path], sums = self._get_parent_fulltext(path, parent_path)
+                sum_out.update(sums)
         return out, sum_out
 
     def populate_subjects(self, target_path):
@@ -145,7 +151,7 @@ class BaseSubject(object):
 
     @staticmethod
     def md_output(subject, text, no_colors=False):
-        pre_md = "Reminding you about **%s**\n%s" % (subject, text)
+        pre_md = "%s" % (text)
         md = mdv.main(pre_md, no_colors=no_colors)
         lines = md.splitlines()
         lines = [line for line in lines if line.strip()]
@@ -157,7 +163,7 @@ class BaseSubject(object):
         pre_md = self._subjects[subject]
         if text:
             pre_md = text
-        pre_md = "Reminding you about **%s**\n%s" % (subject, pre_md)
+        pre_md = "%s" % (pre_md)
         md = mdv.main(pre_md, no_colors=no_colors)
         lines = md.splitlines()
         lines = [line for line in lines if line.strip()]

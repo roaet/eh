@@ -111,8 +111,11 @@ class Eh(object):
         if subject not in self.subjects:
             click.echo("I do not know anything about %s." % subject)
             exit(1)
-        click.echo(base.BaseSubject.md_output(
-            subject, self.subjects[subject], no_colors=self.no_colors))
+        if subject not in self.parents:
+            click.echo(base.BaseSubject.md_output(
+                subject, self.subjects[subject], no_colors=self.no_colors))
+        else:
+            self.subject_list_for_parent(subject)
 
     def run(self, subjects, **kwargs):
         self._merge_subject_collections()
@@ -139,25 +142,50 @@ class Eh(object):
         subs = bis.BuiltInSubjects(self.eh_subject_location)
         return subs
 
-    def subject_list(self):
+    def subject_full_list(self):
         self._merge_subject_collections()
-        click.echo("I know about: ")
         full_list = list(self.subjects.keys())
         full_list.sort()
+        self.subject_list(full_list)
+
+    def subject_list_for_parent(self, parent):
+        parent_list = list(self.parents[parent].keys())
+        parent_list.sort()
+        final_parent_list = []
+        for s in parent_list:
+            if s in self.parents[parent]:
+                final_parent_list.append(s)
+        self.subject_list(final_parent_list, parent)
+
+    def subject_list(self, subjects_to_list, parent=""):
+        wrt = "" if not parent else ", with respect to %s," % parent
+        click.echo("I know%s about: " % wrt)
         t = PrettyTable(
-            [' ', 'subject', 'sub', 'summary'],
-            padding_width=0, header=False,
+            [' ', 'Subject', 'Children', 'Summary'],
+            padding_width=0, header=(True if not parent else False),
             style=PLAIN_COLUMNS,
             vertical_char=' ', horizontal_char=' ', junction_char=' ',
             hrules=NONE)
-        t.align['subject'] = 'l'
-        for subject in full_list:
-            p_icon = '>' if subject in self.parents else ''
+        t.align['Subject'] = 'l'
+        t.align['Summary'] = 'l'
+        for subject in subjects_to_list:
+            p_icon = '>' if subject in self.parents else ' '
             subs = (
-                len(self.parents[subject]) if subject in self.parents else '')
-            summary = self.summaries.get(subject, '')
+                len(self.parents[subject]) if subject in self.parents else ' ')
+            sumlookup = subject
+            if parent:
+                sumlookup = "%s/%s" % (parent, subject)
+            summary = self.summaries.get(sumlookup, '')
             t.add_row([p_icon, subject, subs, summary])
         click.echo(t)
+        if parent:
+            click.echo(
+                "\nRun the following to view one of the above:"
+                "\n\teh %s <subject>" % parent)
+        else:
+            click.echo(
+                "\nRun the following to view one of the above:"
+                "\n\teh <subject>")
 
     def _find_any_subjects(self):
         return [
@@ -214,7 +242,7 @@ class Eh(object):
             g.pull()
             click.echo("Updated subjects")
             self._get_subjects_from_repo()
-            self.subject_list()
+            self.subject_full_list()
 
 @click.command(context_settings=command_settings)
 @click.argument('subject', nargs=-1)
@@ -240,12 +268,14 @@ def main(context, subject, debug, no_colors):
     eho = Eh(debug, no_colors)
     if len(subject) == 0:
         click.echo("Missing a subject to think about")
+        eho.subject_full_list()
+        click.echo("You can also run `eh update` to update your subjects")
         exit(1)
     if len(subject) > 2:
         click.echo("I only go two levels deep")
         exit(1)
     if subject[0] == 'list':
-        eho.subject_list()
+        eho.subject_full_list()
         exit(0)
     if subject[0] == 'update':
         eho.update_subject_repo()
