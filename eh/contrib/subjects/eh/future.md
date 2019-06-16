@@ -8,3 +8,10 @@
     - Less verbose usage configuration
 - A simple website that performs the same actions
 - History logging
+- Metadata tagging for topics
+
+# Debt
+
+- Need to simplify the whole `base_subject` madness
+- Rename all the subject bs to topics
+- Fix versioning and release poopiness
