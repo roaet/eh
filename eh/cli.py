@@ -25,6 +25,11 @@ from prettytable import PLAIN_COLUMNS, NONE
 from eh import base_subject as base
 from eh import built_in_subject as bis
 
+from eh import constants
+from eh import git_store as gs
+from eh import output
+from eh import topic_manager as tm
+
 
 SUBJECT_EP = 'eh.subject_extensions'
 
@@ -89,6 +94,7 @@ class Eh(object):
         final_subjects = {}
         final_parents = {}
         final_summaries = {}
+        final_meta = {}
         for collection in self.subject_collections:
             for subject in collection.subjects:
                 final_subjects[subject] = collection.get_subject_unformatted(
@@ -103,13 +109,22 @@ class Eh(object):
                 s = collection.get_summary(summary)
                 if s:
                     final_summaries[summary] = s
+            final_meta.update(collection.meta)
         self.subjects = final_subjects
         self.parents = final_parents
         self.summaries = final_summaries
+        self.meta = final_meta
+
+    def suggest_from_meta(self, meta):
+        if meta not in self.meta:
+            return
+        collection = self.meta[meta]
+        click.echo(collection)
 
     def find_and_output_subject(self, subject):
         if subject not in self.subjects:
             click.echo("I do not know anything about %s." % subject)
+            self.suggest_from_meta(subject)
             exit(1)
         if subject not in self.parents:
             click.echo(base.BaseSubject.md_output(
@@ -248,8 +263,9 @@ class Eh(object):
 @click.argument('subject', nargs=-1)
 @click.option('--debug', is_flag=True)
 @click.option('--no-colors', is_flag=True)
+@click.option('--old', is_flag=True)
 @click.pass_context
-def main(context, subject, debug, no_colors):
+def main(context, subject, debug, no_colors, old):
     """
     Eh is a terminal program that will provide you with
     quick reminders about a subject.
@@ -265,6 +281,35 @@ def main(context, subject, debug, no_colors):
     Eh will make a directory in your userhome called .eh
     where it will store downloaded subjects.
     """
+    if not old:
+        conf = {
+            'topic_stores': [
+                os.path.join(constants.ROOT_DIR, 'contrib/subjects/'),
+                '/home/jhammond/dev/eh_subjects/subjects/'
+            ]
+        }
+        topic_key = constants.KEY_DIVIDE_CHAR.join(subject)
+        manager = tm.TopicManager(conf)
+        out = output.MarkdownOutput(conf)
+        """
+        test_git = gs.GitTopicStore(
+                conf, "https://github.com/roaet/eh_subjects", 
+                "/home/jhammond/.eh/eh_subjects")
+        # """
+
+        if len(subject) == 0:
+            topics, parents = manager.get_root_list()
+            click.echo(out.output_list("", topics, parents, manager))
+        else:
+            if manager.has_topic(topic_key):
+                topic = manager.get_topic(topic_key)
+                click.echo(out.output_topic(topic))
+            elif manager.has_parent(topic_key):
+                topics, parents = manager.get_topics_for_parent(topic_key)
+                click.echo(out.output_list(
+                    topic_key, topics, parents, manager))
+        exit(0)
+
     eho = Eh(debug, no_colors)
     if len(subject) == 0:
         click.echo("Missing a subject to think about")

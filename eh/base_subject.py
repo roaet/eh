@@ -25,6 +25,7 @@ class BaseSubject(object):
         self._subjects = {}
         self._subject_summaries = {}
         self._parents = {}
+        self._meta = {}
 
     @property
     def subjects(self):
@@ -33,6 +34,10 @@ class BaseSubject(object):
     @property
     def parents(self):
         return self._parents.keys()
+
+    @property
+    def meta(self):
+        return self._meta
 
     @property
     def summaries(self):
@@ -72,9 +77,10 @@ class BaseSubject(object):
         sum_side = [x.strip() for x in comment.split(')')][1]
         return sum_side
 
-    def _create_subject_dict_with_file(self, file):
+    def _create_subject_dict_with_file(self, file, parent):
         out = {}
         sum_out = {}
+        meta_out = {}
         with open(file, 'r') as myfile:
             data = myfile.read().splitlines()
             top_line = data.pop(0)
@@ -85,35 +91,46 @@ class BaseSubject(object):
             else:
                 subjects = [x.strip() for x in top_line.split(',')]
             if not subjects:
-                return None, None
+                return None, None, None
             full_text = "\n".join(data)
+            # first subject is KEY and meta, rest is meta data
+            key = None
             for subject in subjects:
-                out[subject] = full_text
-                sum_out[subject] = summary
-        return out, sum_out
+                if not key:
+                    key = subject
+                    out[key] = full_text
+                    sum_out[key] = summary
+                parent_key = "" if not parent else "%s/" % parent
+                meta_key = "%s%s" % (parent_key, key)
+                if subject not in meta_out:
+                    meta_out[subject] = []
+                meta_out[subject].append(meta_key)
+        return out, sum_out, meta_out
 
     def _get_subjects_in_parent(self, path, full_parent_path):
-        subs, sums = self._gather_subjects(full_parent_path, parent=path)
+        subs, sums, meta = self._gather_subjects(full_parent_path, parent=path)
         for child, text in subs.items():
             self._parents[path][child] = text
-        return subs, sums
+        return subs, sums, meta
 
     def _get_parent_fulltext(self, path, full_parent_path):
-        children, sums = self._get_subjects_in_parent(path, full_parent_path)
+        children, sums, meta = self._get_subjects_in_parent(
+            path, full_parent_path)
         out = ["%s has more detailed subjects:" % path]
         for subject, text in children.items():
             out.append("- %s" % subject)
-        return "\n".join(out), sums
+        return "\n".join(out), sums, meta
 
-    def _gather_subjects(self, target_path, parent=False):
+    def _gather_subjects(self, target_path, parent=None):
         file_paths = []
         out = {}
         sum_out = {}
+        meta_out = {}
         for file in os.listdir(target_path):
             if file.endswith(".md"):
                 file_paths.append(os.path.join(target_path, file))
         for file in file_paths:
-            s, sums = self._create_subject_dict_with_file(file)
+            s, sums, meta = self._create_subject_dict_with_file(file, parent)
             if not s:
                 continue
             out.update(s)
@@ -123,20 +140,23 @@ class BaseSubject(object):
                     psum['%s/%s' % (parent, subsum)] = summary
                 sums = psum
             sum_out.update(sums)
+            meta_out.update(meta)
         if parent:
-            return out, sum_out
+            return out, sum_out, meta_out
         for path in os.listdir(target_path):
             if os.path.isdir(os.path.join(target_path, path)):
                 # path is a directory, and also the parent subject key
                 self._parents[path] = {}
                 parent_path = os.path.join(target_path, path)
-                out[path], sums = self._get_parent_fulltext(path, parent_path)
+                out[path], sums, meta = self._get_parent_fulltext(
+                    path, parent_path)
                 sum_out.update(sums)
-        return out, sum_out
+                meta_out.update(meta)
+        return out, sum_out, meta_out
 
     def populate_subjects(self, target_path):
-        self._subjects, self._subject_summaries = self._gather_subjects(
-            target_path)
+        self._subjects, self._subject_summaries, self._meta = (
+            self._gather_subjects(target_path))
 
     def get_childsubject_unformatted(self, parent, subject):
         pre_md = self._parents[parent][subject]
