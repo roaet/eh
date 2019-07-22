@@ -4,6 +4,7 @@ PyYAML
 Pygments
 argparse
 click
+configobject
 docopt
 pbr
 six

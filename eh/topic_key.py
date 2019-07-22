@@ -18,8 +18,10 @@ class TopicKey(object):
 
     @staticmethod
     def parse_topic_path(conf, path):
+        key = path
         for ext in constants.KNOWN_EXT:
-            key = path.replace(ext, constants.EMPTY)
+            if key.endswith(ext):
+                key = "".join(key.rsplit(ext, 1))
         keyparts = key.split(constants.KEY_DIVIDE_CHAR)
         return keyparts
 

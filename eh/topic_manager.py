@@ -1,17 +1,34 @@
+import os
+
 from eh import constants
 from eh import topic_store as ts
+from eh import git_store as gs
 
 
 class TopicManager(object):
     def __init__(self, conf):
         self.topic_stores = self._gather_topics(conf)
 
+    def _topic_store_path(self, name):
+        return os.path.join(constants.CONF_DIR, name)
+
     def _gather_topics(self, conf):
         out = []
-        for t in conf.get(constants.CONF_TOPIC_STORE, []):
-            t_store = ts.TopicStore(conf, t)
+        if not conf:
+            return out
+        for name, location in conf.items(constants.CONF_TOPIC_STORE):
+            if location.startswith('https://github.com/'):
+                t_store = gs.GitTopicStore(
+                    conf, location, self._topic_store_path(name))
+            else:
+                t_store = ts.TopicStore(conf, location)
+            t_store.initialize(conf)
             out.append(t_store)
         return out
+
+    def update(self):
+        for s in self.topic_stores:
+            s.update()
 
     def has_topic(self, topic):
         for s in self.topic_stores:

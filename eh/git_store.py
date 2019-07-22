@@ -8,10 +8,19 @@ from eh import topic_store as ts
 
 class GitTopicStore(ts.TopicStore):
     def __init__(self, conf, repo, filepath):
+        """
+        repo - is the git url
+        filepath - is the place the repo will be cloned
+        """
         self.repo = repo
         self.repo_path = filepath
         filepath = os.path.join(filepath, 'subjects/')
         super(GitTopicStore, self).__init__(conf, filepath)
+
+    def initialize(self, conf):
+        if not self._check_if_directories_exist():
+            self._init_repo()
+        super(GitTopicStore, self).initialize(conf)
 
     def _setup_repo_directory(self):
         if not os.path.exists(self.repo_path):
