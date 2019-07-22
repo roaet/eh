@@ -1,0 +1,5 @@
+unittest2
+mock
+nose
+coverage
+flake8

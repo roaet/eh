@@ -8,6 +8,8 @@ class TopicManager(object):
 
     def _gather_topics(self, conf):
         out = []
+        if not conf:
+            return out
         for t in conf.get(constants.CONF_TOPIC_STORE, []):
             t_store = ts.TopicStore(conf, t)
             out.append(t_store)
