@@ -31,9 +31,6 @@ You can make a new eh topic by:
 
 ### Creating a new subject repo
 
-The only trick to doing this is to ensure that there is an immediate
-subdirectory called `subjects`.
-
 When you add it to your eh.ini you must provide the entire URI. The value on
 the left-hand side of the `=` does not matter as long as it is unique to your
 configuration file.

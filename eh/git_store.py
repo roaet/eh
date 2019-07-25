@@ -14,7 +14,6 @@ class GitTopicStore(ts.TopicStore):
         """
         self.repo = repo
         self.repo_path = filepath
-        filepath = os.path.join(filepath, 'subjects/')
         super(GitTopicStore, self).__init__(conf, filepath)
 
     def initialize(self, conf):
