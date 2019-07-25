@@ -13,7 +13,7 @@ class GitTopicStore(ts.TopicStore):
         filepath - is the place the repo will be cloned
         """
         self.repo = repo
-        self.repo_path = filepath
+        self.repo_path = '%s%s' % (filepath, os.sep)
         super(GitTopicStore, self).__init__(conf, filepath)
 
     def initialize(self, conf):
