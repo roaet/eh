@@ -44,4 +44,4 @@ After installing you can add eh bash completion by running: `complete -C eh_auto
 ## Future features
 
 - Config from home for color options
-- Personal subject repositories
+- Adding support for `https://github.com/rstacruz/cheatsheets` format
