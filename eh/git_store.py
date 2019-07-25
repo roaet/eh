@@ -13,9 +13,8 @@ class GitTopicStore(ts.TopicStore):
         filepath - is the place the repo will be cloned
         """
         self.repo = repo
-        self.repo_path = filepath
-        filepath = os.path.join(filepath, 'subjects/')
-        super(GitTopicStore, self).__init__(conf, filepath)
+        self.repo_path = '%s%s' % (filepath, os.sep)
+        super(GitTopicStore, self).__init__(conf, self.repo_path)
 
     def initialize(self, conf):
         if not self._check_if_directories_exist():

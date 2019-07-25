@@ -56,14 +56,9 @@ def main(context, subject, debug, no_colors):
         conf[constants.CONF_TOPIC_STORE][
             'eh_default'] = constants.DEFAULT_STORE
 
-
     topic_key = constants.KEY_DIVIDE_CHAR.join(subject)
     manager = tm.TopicManager(conf)
     out = output.MarkdownOutput(conf)
-
-    test_git = gs.GitTopicStore(
-            conf, "https://github.com/roaet/eh_subjects", 
-            "/home/jhammond/.eh/eh_subjects")
 
     if topic_key == "list" or len(subject) == 0:
         topics, parents = manager.get_root_list()

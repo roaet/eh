@@ -31,9 +31,6 @@ You can make a new eh topic by:
 
 ### Creating a new subject repo
 
-The only trick to doing this is to ensure that there is an immediate
-subdirectory called `subjects`.
-
 When you add it to your eh.ini you must provide the entire URI. The value on
 the left-hand side of the `=` does not matter as long as it is unique to your
 configuration file.
@@ -47,4 +44,4 @@ After installing you can add eh bash completion by running: `complete -C eh_auto
 ## Future features
 
 - Config from home for color options
-- Personal subject repositories
+- Adding support for `https://github.com/rstacruz/cheatsheets` format
