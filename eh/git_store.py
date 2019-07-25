@@ -14,7 +14,7 @@ class GitTopicStore(ts.TopicStore):
         """
         self.repo = repo
         self.repo_path = '%s%s' % (filepath, os.sep)
-        super(GitTopicStore, self).__init__(conf, filepath)
+        super(GitTopicStore, self).__init__(conf, self.repo_path)
 
     def initialize(self, conf):
         if not self._check_if_directories_exist():
