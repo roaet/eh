@@ -1,9 +1,18 @@
 CHANGES
 =======
 
-1.2.2
+* Adding unit tests and some docs
+* Started refactor project
+
+1.2.4
 -----
 
+* Version 1.2.4 - updated docs
+
+1.2.3
+-----
+
+* Updated readme and list outputs
 * Updated to 1.2.2
 * Updated list format + summaries
 * Fixed missing arg bug
