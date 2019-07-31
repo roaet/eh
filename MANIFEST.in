@@ -1,5 +1,6 @@
 include distribute_setup.py
 include *.txt
 include *.rst
+default_conf.ini
 prune dist
 # include files, but exclude the directory

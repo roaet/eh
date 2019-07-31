@@ -150,11 +150,11 @@ Lorem ipsum something dolar emet. Yup.
             text_without_top_line = "\n".join(self.good_data.splitlines()[1:])
             self.assertEquals(text_without_top_line, text)
 
-    @unittest.skip("TODO: learn to mock missing files")
-    def test_parse_topic_contents_not_found(self):
+    def test_parse_topic_contents_not_found_returns_nones(self):
         with mock.patch(
                 'eh.topic.open',
                 mock.mock_open(read_data=None)) as mock_open:
+            mock_open.side_effect = IOError
             meta, summary, text = top.Topic.parse_topic_contents(
                 self.conf, self.root_node, self.rootpath, self.path)
             self.assertIsNone(meta)

@@ -32,9 +32,10 @@ class TopicStore(object):
     self._topics is a flattened list of all topic objects in this store
 
     """
-    def __init__(self, conf, filepath):
+    def __init__(self, conf, filepath, name):
         self.root_node = {}
         self.root_node[constants.PARENT_KEY] = {}
+        self.name = name
         self.filepath = filepath
         self.topic_paths = []
         self._topics = []
@@ -121,6 +122,14 @@ class TopicStore(object):
     def has_parent(self, parent):
         return parent in self._parents()
 
+    def meta_search(self, meta_string):
+        out = []
+        for t in self._topics:
+            match = t.meta_match(meta_string)
+            if match > 0:
+                out.append((match, self.name, t))
+        return out
+
     def get_topic(self, path):
         """
         Return the topic object given a path.
@@ -139,6 +148,9 @@ class TopicStore(object):
             if topic.is_topic(path):
                 return topic
         return None
+
+    def get_all_topics(self):
+        return self._topics
     
     def get_topics_for_parent(self, parent):
         """
