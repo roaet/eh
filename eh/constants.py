@@ -17,7 +17,7 @@ STR_TOPIC_REPR = "%s %d chars %s %s"
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) 
 DEFAULT_STORE = os.path.join(ROOT_DIR, 'contrib/subjects/')
-PACKAGE_DIR = os.path.join(ROOT_DIR, "..")
+PACKAGE_DIR = os.path.join(ROOT_DIR)
 USERHOME = os.path.expanduser('~')
 CONF_DIR = os.path.join(USERHOME, CONF_DIR_NAME)
 CONF_FILE = os.path.join(CONF_DIR, CONF_NAME)

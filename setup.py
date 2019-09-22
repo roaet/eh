@@ -21,5 +21,6 @@ import setuptools
 setuptools.setup(
     setup_requires=['pbr'],
     packages=setuptools.find_packages(),
+    include_package_data=True,
     pbr=True,
 )
