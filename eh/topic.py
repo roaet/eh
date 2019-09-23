@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from eh import constants
 from eh import exceptions as exc
@@ -17,6 +18,9 @@ class Topic(object):
             Topic.parse_topic_contents(conf, root_node, rootpath, path))
         self.key = tk.TopicKey(conf, self.path, self.meta)
         Topic.map_topic_path_to_root_node(conf, root_node, path, self)
+
+    def meta_match(self, meta_string):
+        return self.key.metascore(meta_string, self.summary)
 
     def is_topic(self, topic):
         if self.key.matches(topic):
@@ -52,17 +56,79 @@ class Topic(object):
                     root_node[constants.PARENT_KEY][parent_path] = current_node
 
     @staticmethod
+    def get_cheatsheet_parts(data):
+        data_copy = data[:]
+        data_copy.pop(0)
+        header = []
+        end_header_found = False
+        while not end_header_found:
+            line = data_copy.pop(0)
+            if line == '---':
+                end_header_found = True
+                break
+            header.append(line)
+        yaml_text = constants.CR_CHAR.join(header)
+        header_object = yaml.load(yaml_text, Loader=yaml.FullLoader)
+        return header_object, constants.CR_CHAR.join(data_copy)
+
+    @staticmethod
+    def check_cheatsheet_format(data):
+        header_object, text = Topic.get_cheatsheet_parts(data)
+        valid_attributes = [
+            'title', 'layout', 'category', 'updated', 'ads', 'weight',
+            'deprecated', 'deprecated_by', 'prism_languages', 'intro',
+            'tags', 'type', 'home']
+        required_attributes = ['title']
+        for attribute in header_object.keys():
+            if attribute not in valid_attributes:
+                return False
+        for required in required_attributes:
+            if required not in header_object.keys():
+                return False
+        return True
+
+    @staticmethod
+    def determine_format(data):
+        data_copy = data[:]
+        top_line = data_copy.pop(0)
+        if top_line == '---':  # possibly cheatsheet format
+            if Topic.check_cheatsheet_format(data):
+                return 'cheatsheet'
+        if not Topic.check_comment_format(top_line):
+            raise exc.TopicError("Missing expected preamble")
+        return 'eh'
+
+    @staticmethod
+    def parse_eh_format(data):
+        data_copy = data[:]
+        top_line = data_copy.pop(0)
+        text = constants.CR_CHAR.join(data_copy)
+        meta, summary = Topic.split_meta_from_summary(top_line)
+        return meta, summary, text
+
+    @staticmethod
+    def parse_cheatsheet_format(data):
+        data_copy = data[:]
+        header_object, text = Topic.get_cheatsheet_parts(data_copy)
+        meta = header_object.get('tags', [])
+        meta.extend(header_object.get('category', []))
+        summary = header_object.get('intro', "")
+        return meta, summary, text
+
+    @staticmethod
     def parse_topic_contents(conf, root_node, root, path):
         fullpath = os.path.join(root, path)
-        with open(fullpath, 'r') as myfile:
-            data = myfile.read().splitlines()
-            top_line = data.pop(0)
-            if not Topic.check_comment_format(top_line):
-                raise exc.TopicError("Missing expected preamble")
-            text = constants.CR_CHAR.join(data)
-            meta, summary = Topic.split_meta_from_summary(top_line)
-            return meta, summary, text
-        return None, None, None  # pragma: no cover
+        try:
+            with open(fullpath, 'r') as myfile:
+                data = myfile.read().splitlines()
+                file_format = Topic.determine_format(data)
+                if file_format == 'eh':
+                    return Topic.parse_eh_format(data)
+                if file_format == 'cheatsheet':
+                    return Topic.parse_cheatsheet_format(data)
+        except IOError:
+            pass
+        return None, None, None
 
     @staticmethod
     def remove_comment_preamble(text):

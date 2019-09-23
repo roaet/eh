@@ -47,18 +47,35 @@ class Output(object):
                 [full_parent, "%d" % len(tops), top_str])
         return t
 
-    def output_list(self, top_level, topics, parents, manager):
-        top_level_str = "" if not top_level else (
-            "For topic %s " % top_level)
-        findings = "I have found %d topics and %d subtopics:" % (
-                len(topics), len(parents))
-        table_str = str(self._topic_table(topics))
+    def output_list(self, topic_repo_list):
+        t = PrettyTable(
+            ['Repo', 'Key', 'Summary'],
+            padding_width=0,
+            style=PLAIN_COLUMNS,
+            vertical_char=' ', horizontal_char=' ', junction_char=' ',
+            hrules=NONE)
+        t.align['Repo'] = 'l'
+        t.align['Key'] = 'l'
+        t.align['Summary'] = 'l'
+        for (repo, topic) in topic_repo_list:
+            t.add_row([repo, topic.key, topic.summary])
+        return t
 
-        out = "%s%s\n%s" % (top_level_str, findings, table_str)
-        if parents:
-            out += "\n" +  " " * 30
-            out += "\n%s" % self._parent_table(top_level, parents, manager)
-        return out
+    def output_meta(self, meta_results):
+        t = PrettyTable(
+            ['Score', 'Repo', 'Key', 'Summary'],
+            padding_width=0,
+            style=PLAIN_COLUMNS,
+            vertical_char=' ', horizontal_char=' ', junction_char=' ',
+            hrules=NONE)
+        t.align['Score'] = 'l'
+        t.align['Repo'] = 'l'
+        t.align['Key'] = 'l'
+        t.align['Summary'] = 'l'
+        for meta in meta_results:
+            t.add_row(
+                [meta[0], meta[1], meta[2].key, meta[2].summary])
+        return t
 
 
 class MarkdownOutput(Output):

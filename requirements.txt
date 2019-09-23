@@ -11,3 +11,5 @@ six
 stevedore
 mdv
 prettytable
+fuzzywuzzy
+python-Levenshtein

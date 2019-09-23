@@ -31,10 +31,30 @@ command_settings = {
 
 @click.command(context_settings=command_settings)
 @click.argument('subject', nargs=-1)
-@click.option('--debug', is_flag=True)
-@click.option('--no-colors', is_flag=True)
+@click.option('--debug', is_flag=True, hidden=True)
+@click.option(
+    '--no-colors', is_flag=True,
+    help='Do not display colors on output')
+@click.option(
+    '--repo', multiple=True,
+    help='Limit to a repo; can be used multiple times',
+    default=[])
+@click.option(
+    '--list', 'dolist', is_flag=True, default=False,
+    help='List known subjects')
+@click.option(
+    '--update', is_flag=True, default=False,
+    help='Update all repos, or those given with --repo option')
+@click.option(
+    '--min_score', default=50,
+    help="Minimum match score (0 - 100) to consider matching: defaults to 50")
+@click.option(
+    '--search_score', default=35,
+    help="Minimum search score (0 - 100) to show in list: defaults to 35")
 @click.pass_context
-def main(context, subject, debug, no_colors):
+def main(
+        context, subject, debug, no_colors, repo,
+        dolist, update, min_score, search_score):
     """
     Eh is a terminal program that will provide you with
     quick reminders about a subject.
@@ -51,25 +71,42 @@ def main(context, subject, debug, no_colors):
     where it will store downloaded subjects.
     """
 
+    repo_list = [str(x) for x in list(repo)]
+    do_list = dolist
+    do_update = update
+
     conf = config.open_config()
     if config.is_true(conf.eh.show_default):
         conf[constants.CONF_TOPIC_STORE][
             'eh_default'] = constants.DEFAULT_STORE
 
     topic_key = constants.KEY_DIVIDE_CHAR.join(subject)
-    manager = tm.TopicManager(conf)
+    manager = tm.TopicManager(conf, repo_list, search_score)
     out = output.MarkdownOutput(conf)
 
-    if topic_key == "list" or len(subject) == 0:
-        topics, parents = manager.get_root_list()
-        click.echo(out.output_list("", topics, parents, manager))
-    elif topic_key == "update":
+    if do_list:
+        topics = manager.get_all_topics()
+        topics.sort(key=lambda x: str(x[1].key))
+        click.echo(out.output_list(topics))
+    elif do_update:
         manager.update()
     else:
-        if manager.has_topic(topic_key):
-            topic = manager.get_topic(topic_key)
+        meta_results = manager.meta_search(topic_key)
+        if len(meta_results) == 0:
+            click.echo("Did not find anything matching that")
+        elif len(meta_results) == 1 and meta_results[0][0] >= min_score:
+            topic = meta_results[0][2]
+            print(topic)
             click.echo(out.output_topic(topic))
-        elif manager.has_parent(topic_key):
-            topics, parents = manager.get_topics_for_parent(topic_key)
-            click.echo(out.output_list(
-                topic_key, topics, parents, manager))
+        elif len(meta_results) == 1 and meta_results[0][0] < min_score:
+            topic = meta_results[0][2]
+            click.echo("Did you mean to look up %s?" % topic.shortkey)
+            click.echo("The summary of it is: %s" % topic.summary)
+        elif(
+                len(meta_results) > 1 and
+                meta_results[0][0] - meta_results[1][0] > 20):
+            topic = meta_results[0][2]
+            click.echo(out.output_topic(topic))
+        else:
+            click.echo("I found things like that: ")
+            click.echo(out.output_meta(meta_results))
