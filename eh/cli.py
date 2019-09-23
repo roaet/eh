@@ -96,7 +96,6 @@ def main(
             click.echo("Did not find anything matching that")
         elif len(meta_results) == 1 and meta_results[0][0] >= min_score:
             topic = meta_results[0][2]
-            print(topic)
             click.echo(out.output_topic(topic))
         elif len(meta_results) == 1 and meta_results[0][0] < min_score:
             topic = meta_results[0][2]
