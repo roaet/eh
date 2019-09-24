@@ -22,6 +22,28 @@ run eh.
 The Eh configuration file is located at ~/.eh/eh.ini. This location cannot be
 changed.
 
+
+### Selected topics
+
+You can select topics from a store, at the cost of removing the unselected
+topics, by adding a section in the configuration with the name of the store.
+In this configuration section you need to add an attribute called `topics` and
+then add the keys of the topics you wish to keep in a comma-separated list.
+
+An example configuration follows:
+
+```
+[topic_stores]
+eh_default = https://github.com/roaet/eh_subjects
+
+[eh_default]
+topics = eh/about,eh/future,eh/help
+```
+
+In the above example the name of the store is `eh_default`, as seen in the 
+`topic_stores` section. This name should be used in the selected topic section
+and then keys added there as shown.
+
 ## Making an eh topic
 
 You can make a new eh topic by:
