@@ -39,12 +39,20 @@ class TopicStore(object):
         self.filepath = filepath
         self.topic_paths = []
         self._topics = []
+        self._selected_topics = self._create_selective_list(conf, name)
 
     def initialize(self, conf):
         self.topic_paths = self._gather_topics(
             conf, self.filepath, self.filepath)
         self._topics = self._parse_topics(
             conf, self.root_node, self.filepath, self.topic_paths)
+
+    def _create_selective_list(self, conf, name):
+        if name not in conf:
+            return []
+        if constants.CONF_TOPIC_KEY not in conf[name]:
+            return []
+        return conf[name][constants.CONF_TOPIC_KEY]
 
     def update(self):
         pass
@@ -99,6 +107,8 @@ class TopicStore(object):
                 topics.append(t)
             except exc.TopicError:
                 continue
+        if self._selected_topics:
+            topics = [t for t in topics if str(t.key) in self._selected_topics]
         return topics
 
     def _parents(self):

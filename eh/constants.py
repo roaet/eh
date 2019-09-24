@@ -9,6 +9,7 @@ KNOWN_EXT = ['.md']
 KEY_DIVIDE_CHAR = os.sep
 EMPTY = ''
 CONF_TOPIC_STORE = 'topic_stores'
+CONF_TOPIC_KEY = 'topics'
 CONF_DIR_NAME = '.eh'
 CONF_NAME = 'eh.ini'
 TOPIC_KEY = "_"
