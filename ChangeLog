@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* Added selective topics in the eh config
+* Fixed unit tests
+
 1.4.4
 -----
 

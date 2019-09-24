@@ -7,6 +7,42 @@ from eh.tests import base_test as base
 from eh import topic as top
 
 
+cheatsheet_header = """---
+title: React.js
+layout: 2017/sheet   # 'default' | '2017/sheet'
+
+# Optional:
+category: React
+updated: 2017-08-30       # To show in the updated list
+ads: false                # Add this to disable ads
+weight: -5                # lower number = higher in related posts list
+deprecated: true          # Don't show in related posts
+deprecated_by: /enzyme    # Point to latest version
+prism_languages: [vim]    # Extra syntax highlighting
+intro: |
+  This is some *Markdown* at the beginning of the article.
+tags:
+  - WIP
+  - Featured
+---"""
+
+cheatsheet_invalid = cheatsheet_header[:-3] + """
+# Special pages:
+# (don't set these for cheatsheets)
+type: home                # home | article | error
+og_type: website          # opengraph type
+---"""
+
+cheatsheet_missing_title = """---
+category: React
+intro: |
+  This is some *Markdown* at the beginning of the article.
+tags:
+  - WIP
+  - Featured
+---"""
+
+
 class TestTopic(base.TestCase):
     def setUp(self):
         super(TestTopic, self).setUp()
@@ -215,3 +251,32 @@ Lorem ipsum something dolar emet. Yup.
         path = 'topic.md'
         top.Topic.map_topic_path_to_root_node({}, root, path, 'poop')
         self.assertEquals(self.good_graph_no_parents, root)
+
+    def test_cheatsheet_format_good(self):
+        data = cheatsheet_header.split("\n")
+        self.assertTrue(top.Topic.check_cheatsheet_format(data))
+        data = cheatsheet_invalid.split("\n")
+        self.assertFalse(top.Topic.check_cheatsheet_format(data))
+
+    def test_cheatsheet_conversion(self):
+        data = cheatsheet_header.split("\n")
+        meta, summary, text = top.Topic.parse_cheatsheet_format(data)
+        self.assertEqual(['WIP', 'Featured', "React"], meta)
+        self.assertEqual(
+            "This is some *Markdown* at the beginning of the article.",
+            summary.strip())
+        self.assertEqual("", text)
+
+    def test_cheatsheet_title_missing(self):
+        data = cheatsheet_missing_title.split("\n")
+        self.assertFalse(top.Topic.check_cheatsheet_format(data))
+
+    def test_determine_format(self):
+        data = cheatsheet_header.split("\n")
+        self.assertEqual("cheatsheet", top.Topic.determine_format(data))
+        data = self.good_data.split("\n")
+        self.assertEqual("eh", top.Topic.determine_format(data))
+        with self.assertRaises(exc.TopicError):
+            data = cheatsheet_missing_title.split("\n")
+            top.Topic.determine_format(data)
+
