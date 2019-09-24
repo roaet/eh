@@ -1,17 +1,20 @@
 CHANGES
 =======
 
-* Removed stray print
-
-1.4.3
+1.4.4
 -----
 
+* Removed stray print
 * Version 1.4.3
 
 1.4.2
 -----
 
 * Added fuzzywuzzy and meta search
+
+1.3.3
+-----
+
 * Version 1.3.3
 * Fixed the separator bug again
 * Fixed separator bug

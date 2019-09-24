@@ -53,15 +53,15 @@ class TestTopicManager(base.TestCase):
 
     def test_initialize_empty_conf_okay(self):
         manager = tm.TopicManager({})
-        self.assertEqual(0, len(manager.topic_stores))
+        self.assertEqual(0, len(manager._topic_stores))
 
     def test_initialize_none_conf_okay(self):
         manager = tm.TopicManager(None)
-        self.assertEqual(0, len(manager.topic_stores))
+        self.assertEqual(0, len(manager._topic_stores))
 
     def test_initialize_with_test_okay(self):
         manager = tm.TopicManager(self.test_conf)
-        self.assertEqual(1, len(manager.topic_stores))
+        self.assertEqual(1, len(manager._topic_stores))
 
     def test_has_topic_matches_internal_store(self):
         manager = tm.TopicManager(self.test_conf)
@@ -70,9 +70,9 @@ class TestTopicManager(base.TestCase):
 
     def test_has_topic_no_stores_has_no_match(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = []
+        manager._topic_stores = []
         self.assertFalse(manager.has_topic('pass'))
-        manager.topic_stores = [self.store]
+        manager._topic_stores = [self.store]
         self.assertTrue(manager.has_topic('pass'))
 
     def test_get_topic_matches_internal_store(self):
@@ -82,9 +82,9 @@ class TestTopicManager(base.TestCase):
 
     def test_get_topic_no_stores_has_no_match(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = []
+        manager._topic_stores = []
         self.assertIsNone(manager.get_topic('pass'))
-        manager.topic_stores = [self.store]
+        manager._topic_stores = [self.store]
         self.assertIsNotNone(manager.get_topic('pass'))
 
     def test_has_parent_matches_internal_store(self):
@@ -94,9 +94,9 @@ class TestTopicManager(base.TestCase):
 
     def test_has_parent_no_stores_has_no_match(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = []
+        manager._topic_stores = []
         self.assertFalse(manager.has_parent('pass'))
-        manager.topic_stores = [self.store]
+        manager._topic_stores = [self.store]
         self.assertTrue(manager.has_parent('pass'))
 
     def test_get_topics_for_parent_matches_internal_store(self):
@@ -107,33 +107,33 @@ class TestTopicManager(base.TestCase):
 
     def test_get_topics_for_parent_no_store(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = []
+        manager._topic_stores = []
         ret, pret = manager.get_topics_for_parent('pass')
         self.assertEqual(0, len(ret))
         self.assertEqual(0, len(pret))
 
-        manager.topic_stores = [self.store]
+        manager._topic_stores = [self.store]
         ret, pret = manager.get_topics_for_parent('pass')
         self.assertEqual(1, len(ret))
         self.assertEqual(1, len(pret))
 
     def test_get_topics_for_parent_multiple_stores(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = [self.store, self.store2]
+        manager._topic_stores = [self.store, self.store2]
         ret, pret = manager.get_topics_for_parent('pass')
         self.assertEqual(2, len(ret))
         self.assertEqual(2, len(pret))
 
     def test_get_root_list(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = [self.store, self.store2]
+        manager._topic_stores = [self.store, self.store2]
         ret, pret = manager.get_root_list()
         self.assertEqual(2, len(ret))
         self.assertEqual(2, len(pret))
 
     def test_get_root_list_empty_with_no_stores(self):
         manager = tm.TopicManager(self.test_conf)
-        manager.topic_stores = []
+        manager._topic_stores = []
         ret, pret = manager.get_root_list()
         self.assertEqual(0, len(ret))
         self.assertEqual(0, len(pret))

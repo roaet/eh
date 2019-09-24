@@ -10,7 +10,7 @@ from eh import git_store as gs
 class TestGitStore(base.TestCase):
     def setUp(self):
         super(TestGitStore, self).setUp()
-        self.store = gs.GitTopicStore({}, "somerepo", "")
+        self.store = gs.GitTopicStore({}, "somerepo", "", "")
 
     def tearDown(self):
         super(TestGitStore, self).tearDown()
