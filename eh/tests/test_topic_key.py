@@ -4,6 +4,7 @@ from eh import constants
 from eh import exceptions as exc
 from eh.tests import base_test as base
 from eh import topic_key as tk
+from eh.topic_key import TopicKey
 
 
 class TestTopicKey(base.TestCase):
@@ -20,6 +21,12 @@ class TestTopicKey(base.TestCase):
     def test_create_key(self):
         key = tk.TopicKey(self.conf, self.path, self.meta)
         self.assertIsNotNone(key)
+
+    def test_metascore_does_not_raise(self):
+        key = tk.TopicKey(self.conf, self.path, self.meta)
+        self.assertNotEqual(0, key.metascore(self.path, ""))
+        key = tk.TopicKey({}, "", None)
+        self.assertEqual(0, key.metascore(self.path, ""))
 
     def test_matches(self):
         key = tk.TopicKey(self.conf, self.path, self.meta)
@@ -64,3 +71,16 @@ class TestTopicKey(base.TestCase):
         self.assertTrue(key.matches('parent/topic'))
         self.assertTrue('parent/topic', str(key))
 
+    def test_get_key_metascore_precedence(self):
+        key = tk.TopicKey(self.conf, "parent/foo", ["parent", "foo"])
+        summary = "parent/foo"
+        lookup = "parent/foo"
+
+        ks, kr = TopicKey._key_metascore(lookup, key)
+        ss, sr = TopicKey._shortkey_metascore(lookup, key)
+        ms, mr = TopicKey._meta_metascore(lookup, key)
+        sums, sumr = TopicKey._summary_metascore(lookup, summary)
+        print(ks, ss, ms, sums)
+        print(kr, sr, mr, sumr)
+        self.assertEqual(kr, max([kr, sr, mr, sumr]))
+        self.assertTrue(kr > sr and sr > mr and mr > sumr)

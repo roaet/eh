@@ -23,3 +23,10 @@ USERHOME = os.path.expanduser('~')
 CONF_DIR = os.path.join(USERHOME, CONF_DIR_NAME)
 CONF_FILE = os.path.join(CONF_DIR, CONF_NAME)
 DEFAULT_CONF = os.path.join(PACKAGE_DIR, 'default_conf.ini')
+
+MATCH = 100
+
+SHORTKEY_WEIGHT = 0.5
+KEY_WEIGHT = 0.3
+META_WEIGHT = 0.2
+SUMMARY_WEIGHT = 0.1

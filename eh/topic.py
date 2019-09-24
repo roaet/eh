@@ -77,7 +77,7 @@ class Topic(object):
         valid_attributes = [
             'title', 'layout', 'category', 'updated', 'ads', 'weight',
             'deprecated', 'deprecated_by', 'prism_languages', 'intro',
-            'tags', 'type', 'home']
+            'tags', 'home']
         required_attributes = ['title']
         for attribute in header_object.keys():
             if attribute not in valid_attributes:
@@ -90,7 +90,7 @@ class Topic(object):
     @staticmethod
     def determine_format(data):
         data_copy = data[:]
-        top_line = data_copy.pop(0)
+        top_line = data_copy[0]
         if top_line == '---':  # possibly cheatsheet format
             if Topic.check_cheatsheet_format(data):
                 return 'cheatsheet'
@@ -111,7 +111,7 @@ class Topic(object):
         data_copy = data[:]
         header_object, text = Topic.get_cheatsheet_parts(data_copy)
         meta = header_object.get('tags', [])
-        meta.extend(header_object.get('category', []))
+        meta.append(header_object.get('category', ""))
         summary = header_object.get('intro', "")
         return meta, summary, text
 

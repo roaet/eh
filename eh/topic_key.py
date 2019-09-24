@@ -31,29 +31,46 @@ class TopicKey(object):
         return keyparts
 
     @staticmethod
-    def get_key_metascore(key, meta_string, summary):
-        meta_parts = meta_string.split(constants.KEY_DIVIDE_CHAR)
-        meta_str_spaced = meta_string.replace(
-            constants.KEY_DIVIDE_CHAR, ' ')
-        key_meta_spaced = ' '.join(key.meta)
+    def _key_metascore(lookup, key):
+        s = fuzz.ratio(lookup, str(key))
+        if lookup == str(key):
+            s = constants.MATCH
+        return s, s * constants.KEY_WEIGHT
 
-        key_ratio = fuzz.ratio(meta_string, str(key))
-        short_ratio = fuzz.ratio(meta_string, key.shortkey)
-        meta_ratio = fuzz.token_set_ratio(meta_str_spaced, key_meta_spaced)
-        summary_ratio = fuzz.token_set_ratio(meta_str_spaced, summary)
-        MAX_MATCH = 100
+    @staticmethod
+    def _shortkey_metascore(lookup, key):
+        s = fuzz.ratio(lookup, key.shortkey)
+        if lookup == key.shortkey:
+            s = constants.MATCH
+        return s, s * constants.SHORTKEY_WEIGHT
 
-        if key_ratio == MAX_MATCH:
-            return MAX_MATCH
-        SHORTKEY_WEIGHT = 0.4
-        KEY_WEIGHT = 0.3
-        META_WEIGHT = 0.2
-        SUMMARY_WEIGHT = 0.1
-        final = (
-            short_ratio * SHORTKEY_WEIGHT +
-            key_ratio * KEY_WEIGHT +
-            meta_ratio * META_WEIGHT +
-            summary_ratio * SUMMARY_WEIGHT)
+    @staticmethod
+    def _meta_metascore(lookup, key):
+        l = lookup.replace(constants.KEY_DIVIDE_CHAR, ' ')
+        s = fuzz.token_set_ratio(l, ' '.join(key.meta))
+        if lookup == ','.join(key.meta):
+            s = constants.MATCH
+        return s, s * constants.META_WEIGHT
+
+    @staticmethod
+    def _summary_metascore(lookup, summary):
+        l = lookup.replace(constants.KEY_DIVIDE_CHAR, ' ')
+        s = fuzz.token_set_ratio(l, summary)
+        if lookup == summary:
+            s = constants.MATCH
+        return s, s * constants.SUMMARY_WEIGHT
+
+    @staticmethod
+    def get_key_metascore(key, lookup, summary):
+        key_score, key_ratio = TopicKey._key_metascore(lookup, key)
+        short_score, short_ratio = TopicKey._shortkey_metascore(lookup, key)
+        meta_score, meta_ratio = TopicKey._meta_metascore(lookup, key)
+        summary_score, summary_ratio = TopicKey._summary_metascore(
+            lookup, summary)
+
+        if key_score == constants.MATCH:
+            return constants.MATCH
+        final = short_ratio + key_ratio + meta_ratio + summary_ratio
         return final 
 
     def __repr__(self):
